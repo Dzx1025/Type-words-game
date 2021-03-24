@@ -2,11 +2,12 @@
 #define _WORD_H
 
 #include <iostream>
-#include <deque>
+#include <vector>
 #include <string>
 #include <memory>
 #include <cstdlib>
 #include <utility>
+#include <cassert>
 
 class Word {
 public:
@@ -38,8 +39,7 @@ private:
 	int edge = 0;
 
 public:
-
-	std::deque<std::unique_ptr<Word>> dq_words;
+	std::vector<std::unique_ptr<Word>> dq_words;
 
 	Words(int m, int e) : max(m), edge(e) {}
 
@@ -58,17 +58,46 @@ public:
 		return dq_words.back().get()->val;
 	}
 
-	bool Drop()    //return hurt
+	void Clean_Null()
 	{
-		int cnt = 0;
+		std::vector<std::unique_ptr<Word>> new_dq;
 		for (auto& word : dq_words) {
-			if (word->Down() > edge)
-				++cnt;
+			if (word != nullptr)
+				new_dq.push_back(std::move(word));
 		}
-		//pop bottom word (must be front)
-		for (int i = 0; i < cnt; i++) dq_words.pop_front();
+		swap(dq_words, new_dq);
+	}
 
-		return cnt != 0;
+	bool Find_Clear(const std::string input)
+	{
+		bool res = false;
+		for (auto& word : dq_words) {
+			if (input == word->val) {
+				word = nullptr;
+				res = true;
+				break;
+			}
+		}
+		Clean_Null();
+		return res;
+	}
+
+	void More_Word(int i)
+	{
+		max += i;
+	}
+
+	bool Drop()
+	{
+		bool res = false;
+		for (auto& word : dq_words) {
+			if (word->Down() > edge) {
+				word = nullptr;
+				res = true;
+			}
+		}
+		Clean_Null();
+		return res;
 	}
 
 };

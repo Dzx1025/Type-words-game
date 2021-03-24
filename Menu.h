@@ -20,6 +20,8 @@ private:
 	int row, col;
 	std::vector<std::vector<Point>> map;
 
+	int life = 0, score = 0;
+
 	static void cls()
 	{
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -29,16 +31,16 @@ private:
 
 public:
 
-	Menu(int r, int c) : row(r), col(c), map(r + 1, std::vector<Point>(c, ' ')) {}
+	Menu(int r, int c, int l, int s = 0) : row(r), col(c), life(l), score(s), map(r + 1, std::vector<Point>(c, ' ')) {}
 
 	void Renew_Map(const Words& w)
 	{
-		map = std::vector < std::vector < Point >>(row + 1, std::vector<Point>(col, ' '));    //reload map
+		map = std::vector<std::vector<Point>>(row + 1, std::vector<Point>(col, ' '));    //reload map
 
 		for (auto& q : w.dq_words) {
-			if (q == nullptr) continue;
+			if (q == nullptr)	continue;
 
-			auto& word = *q.get();
+			auto& word = *q;
 			int r = word.row, c = word.col;
 			int len = word.val.length();
 
@@ -49,14 +51,14 @@ public:
 		}
 	}
 
-	void Print_Map(int life, int score)
+	void Print_Map()
 	{
-		//clearScreen();
+		//cls();
 		system("cls");
 		//print player information
-		Print_Life(life);
+		printf("Life:%d", life);
 		for (int i = 0; i < col / 10; i++) printf("\t");
-		Print_Score(score);
+		printf("Score:%d\n", score);
 
 		//print game map
 		for (int i = 0; i < col; i++) printf("-");
@@ -70,14 +72,24 @@ public:
 		printf("\n");
 	}
 
-	static void Print_Life(int life)
+	void Hurt()
 	{
-		printf("life:%d", life);
+		life--;
 	}
 
-	static void Print_Score(int score)
+	bool live() const
 	{
-		printf("Score:%d\n", score);
+		return life < 0;
+	}
+
+	int Score() const
+	{
+		return score;
+	}
+
+	void Add_Score(int i)
+	{
+		score += i;
 	}
 };
 

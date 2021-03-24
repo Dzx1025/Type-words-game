@@ -18,18 +18,20 @@ auto select_random(const S& s, size_t n)
 constexpr auto ROW = 25;
 constexpr auto COL = 50;
 
-int life = 5, score = 0;
-int interval = 600;
-int max_num = 5;
-
-bool exit();
 void fin_words(set<string>& dict, ifstream& inf);
 void Create_Word(set<string>& dict, Words& words);
-void Clear_Word(string& input, int& score, Menu& m, Words& words);
+void Clear_Word(string& input, Menu& m, Words& words);
 
 int main()
 {
-	Menu menu(ROW, COL);
+	/*
+	-------------------------Config-----------------------
+	*/
+	int interval = 10;
+	int life = 0;
+	const int max_num = 5;
+
+	Menu menu(ROW, COL, life);
 	Words words(max_num, ROW);
 	ifstream inf("dict.txt");
 
@@ -38,41 +40,51 @@ int main()
 
 	srand((unsigned)time(nullptr));
 
+	/*
+	--------------------Game Start------------------------
+	*/
 	string input;
-	while (!exit()) {
+	int time = 0;
+	while (!menu.live()) {
 		menu.Renew_Map(words);
-		menu.Print_Map(life, score);
-		cout << input << endl;
+		menu.Print_Map();
 
 		if (_kbhit()) {
-			Clear_Word(input, score, menu, words);
+			Clear_Word(input, menu, words);
 		}
-		if (words.Size() < max_num)    //max limit
+		cout << input << endl;
+
+		if (!(time % 10))
 		{
-			Create_Word(dict, words);
+			if (words.Size() < max_num)    //max limit
+				Create_Word(dict, words);
+
+			if (words.Drop())
+				menu.Hurt();
 		}
-		if (words.Drop())
-			life--;
 
-		if (!(score % 10) && score)
+		if (menu.Score() != 0 && !(menu.Score() % 10)) {
 			interval = static_cast<int>(interval / 1.2);
-		this_thread::sleep_for(chrono::milliseconds(interval));
-	}
+			words.More_Word(1);
+		}
 
+		this_thread::sleep_for(chrono::milliseconds(interval));
+		++time;
+	}
+	/*
+	---------------------Game Over---------------------------
+	*/
+	printf("Your Score : %d\n", menu.Score());
 	return 0;
 }
 
 //Function
-bool exit()
-{
-	return life < 0;
-}
 
 void fin_words(set<string>& dict, ifstream& inf)
 {
-	string s;
-	while (getline(inf, s, '\n'))
-		dict.insert(s);
+	string word;
+	while (getline(inf, word, '\n'))
+		dict.insert(word);
 }
 
 void Create_Word(set<string>& dict, Words& words)
@@ -84,30 +96,35 @@ void Create_Word(set<string>& dict, Words& words)
 	words.dq_words.push_back(std::make_unique<Word>(x, y, s));
 }
 
-void Clear_Word(string& input, int& score, Menu& m, Words& words)
+void Clear_Word(string& input, Menu& m, Words& words)
 {
 	bool over = false;
 	char c = static_cast<char>(_getch());
-	if (c == '\r') over = true;
 
 	input.push_back(c);
-	if (c == 8)	input.pop_back();
 
-	//input match successfully
+	if (c == '\r') over = true;
+	else if (c == 8) {
+		input.pop_back();	//for back
+		input.pop_back();	//for erase char
+	}
+
 	if (over) {
-		if (input.substr(0, input.length() - 1) == words.Top()) {
+		//input match successfully
+		string in = input.substr(0, input.length() - 1);
+
+		if (words.Find_Clear(in)) {
 			cout << endl << "Clear!!!" << endl;
 
-			words.dq_words.pop_front();
 			m.Renew_Map(words);
-			score++;
+			m.Add_Score(1);
 		}
 		else {
 			cout << endl << "Wrong!!!" << endl;
 		}
 		input.clear();
 	}
-	//Clear input cache
+	//Clear cin cache
 	cin.clear();
 	cin.sync();
 }
