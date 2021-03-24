@@ -33,7 +33,7 @@ public:
 
 	void Renew_Map(const Words& w)
 	{
-		map = std::vector < std::vector < Point >>(row + 1, std::vector<Point>(col, ' '));    //reload map
+		map = std::vector<std::vector<Point>>(row + 1, std::vector<Point>(col, ' '));    //reload map
 
 		for (auto& q : w.dq_words) {
 			if (q == nullptr) continue;
