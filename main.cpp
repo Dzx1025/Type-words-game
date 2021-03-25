@@ -23,7 +23,7 @@ void Create_Word(set<string>& dict, Words& words);
 void Clear_Word(string& input, Menu& m, Words& words);
 
 int main()
-{
+{	
 	/*
 	-------------------------Config-----------------------
 	*/
@@ -93,7 +93,7 @@ void Create_Word(set<string>& dict, Words& words)
 	const string& s(ran_word);
 	int x = 0, y = static_cast<int>(rand() % (COL - s.length()));
 
-	words.dq_words.push_back(std::make_unique<Word>(x, y, s));
+	words.v_words.push_back(std::make_unique<Word>(x, y, s));
 }
 
 void Clear_Word(string& input, Menu& m, Words& words)

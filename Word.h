@@ -39,39 +39,39 @@ private:
 	int edge = 0;
 
 public:
-	std::vector<std::unique_ptr<Word>> dq_words;
+	std::vector<std::unique_ptr<Word>> v_words;
 
 	Words(int m, int e) : max(m), edge(e) {}
 
 	int Size() const
 	{
-		return dq_words.size();
+		return v_words.size();
 	}
 
 	std::string Top() const
 	{
-		return dq_words.front().get()->val;
+		return v_words.front().get()->val;
 	}
 
 	std::string Bottom() const
 	{
-		return dq_words.back().get()->val;
+		return v_words.back().get()->val;
 	}
 
 	void Clean_Null()
 	{
 		std::vector<std::unique_ptr<Word>> new_dq;
-		for (auto& word : dq_words) {
+		for (auto& word : v_words) {
 			if (word != nullptr)
 				new_dq.push_back(std::move(word));
 		}
-		swap(dq_words, new_dq);
+		v_words = move(new_dq);
 	}
 
 	bool Find_Clear(const std::string input)
 	{
 		bool res = false;
-		for (auto& word : dq_words) {
+		for (auto& word : v_words) {
 			if (input == word->val) {
 				word = nullptr;
 				res = true;
@@ -90,7 +90,7 @@ public:
 	bool Drop()
 	{
 		bool res = false;
-		for (auto& word : dq_words) {
+		for (auto& word : v_words) {
 			if (word->Down() > edge) {
 				word = nullptr;
 				res = true;

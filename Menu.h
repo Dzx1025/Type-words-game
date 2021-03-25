@@ -37,7 +37,7 @@ public:
 	{
 		map = std::vector<std::vector<Point>>(row + 1, std::vector<Point>(col, ' '));    //reload map
 
-		for (auto& q : w.dq_words) {
+		for (auto& q : w.v_words) {
 			if (q == nullptr)	continue;
 
 			auto& word = *q;
